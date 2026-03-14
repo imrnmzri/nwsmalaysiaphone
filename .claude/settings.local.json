@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:api.data.gov.my)",
+      "Bash(find \"C:\\\\Users\\\\imran\\\\Desktop\\\\nwsmalaysiaphone\\\\app\\\\src\" -name \"*.kt\" -type f | xargs grep -l \"worker\" -i | head -10)",
+      "Bash(find \"C:\\\\Users\\\\imran\\\\Desktop\\\\nwsmalaysiaphone\\\\app\\\\src\\\\main\\\\java\\\\my\\\\gov\\\\met\\\\nwsmalaysia\" -type f \\\\\\( -name \"*.kt\" \\\\\\) | xargs grep -l \"Notification\\\\|notify\\\\|channel\" 2>/dev/null)",
+      "Bash(find \"/c/Users/imran/Desktop/nwsmalaysiaphone\" -type f -name \"*Nav*\" | grep -E \"\\\\.\\(kt|xml\\)$\")"
+    ]
+  }
+}

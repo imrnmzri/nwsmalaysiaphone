@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NWS Malaysia</string>
+    <string name="channel_warnings_name">Weather Warnings</string>
+    <string name="channel_warnings_desc">Weather warning alerts for your location</string>
+</resources>
