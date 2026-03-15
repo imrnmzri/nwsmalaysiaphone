@@ -22,11 +22,13 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
@@ -81,10 +83,9 @@ dependencies {
 
     // Coil
     implementation(libs.coil.compose)
-    implementation(libs.coil.gif)
 
-    // ML Kit
-    implementation(libs.mlkit.text.recognition)
+    // ML Kit (unbundled – models download on-demand, saves ~20 MB)
+    implementation(libs.mlkit.text.recognition.unbundled)
 
     // Location
     implementation(libs.play.services.location)

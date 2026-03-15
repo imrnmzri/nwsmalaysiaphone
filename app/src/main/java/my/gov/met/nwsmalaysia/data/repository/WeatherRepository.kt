@@ -98,7 +98,14 @@ class WeatherRepository @Inject constructor(
     private fun OpenMeteoResponse.buildHourlyList(): List<HourlyForecast> {
         val h = hourly ?: return emptyList()
         val times = h.time ?: return emptyList()
-        return times.indices.take(24).mapNotNull { i ->
+        val now = LocalDateTime.now()
+        val startIndex = times.indexOfFirst { timeStr ->
+            try {
+                val t = LocalDateTime.parse(timeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                !t.isBefore(now.withMinute(0).withSecond(0).withNano(0))
+            } catch (e: Exception) { false }
+        }.takeIf { it >= 0 } ?: 0
+        return (startIndex until times.size).take(12).mapNotNull { i ->
             val time = times.getOrNull(i) ?: return@mapNotNull null
             HourlyForecast(
                 time = time,
