@@ -55,11 +55,22 @@ class LocationRepository @Inject constructor(
 
     @SuppressLint("MissingPermission")
     private suspend fun getGpsFix(): android.location.Location? {
+        val fusedClient = LocationServices.getFusedLocationProviderClient(context)
+
+        // Try last known location first — instant, no GPS warm-up needed
+        val lastLocation: android.location.Location? = suspendCancellableCoroutine { cont ->
+            fusedClient.lastLocation
+                .addOnSuccessListener { loc -> cont.resume(loc) }
+                .addOnFailureListener { cont.resume(null) }
+        }
+        if (lastLocation != null) return lastLocation
+
+        // Fall back to a fresh fix with high accuracy and a generous age window
         return suspendCancellableCoroutine { cont ->
-            val fusedClient = LocationServices.getFusedLocationProviderClient(context)
             val request = com.google.android.gms.location.CurrentLocationRequest.Builder()
-                .setPriority(Priority.PRIORITY_BALANCED_POWER_ACCURACY)
-                .setMaxUpdateAgeMillis(60_000)
+                .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+                .setMaxUpdateAgeMillis(300_000) // accept fixes up to 5 min old
+                .setDurationMillis(15_000)      // wait up to 15 s for a fresh fix
                 .build()
             fusedClient.getCurrentLocation(request, null)
                 .addOnSuccessListener { loc -> cont.resume(loc) }
