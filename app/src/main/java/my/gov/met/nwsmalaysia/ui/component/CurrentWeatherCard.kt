@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -122,7 +123,7 @@ fun WmoIcon(
     isNight: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-    val (icon, tint) = when (code) {
+    val iconAndTint: Pair<ImageVector, Color> = when (code) {
         0, 1 -> if (isNight)
             Icons.Default.Bedtime       to Color(0xFF7986CB)
         else
@@ -137,7 +138,7 @@ fun WmoIcon(
             Icons.Default.Cloud         to Color(0xFF90A4AE)
 
         45, 48 ->
-            Icons.Default.Foggy         to Color(0xFFB0BEC5)
+            Icons.Default.BlurOn        to Color(0xFFB0BEC5)
 
         51, 53, 55,
         61, 63, 65 ->
@@ -157,6 +158,7 @@ fun WmoIcon(
         else
             Icons.Default.WbSunny       to Color(0xFFF9A825)
     }
+    val (icon, tint) = iconAndTint
     Icon(
         imageVector = icon,
         contentDescription = null,

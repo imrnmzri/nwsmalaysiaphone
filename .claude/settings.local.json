@@ -10,7 +10,13 @@
       "Bash(export:*)",
       "WebSearch",
       "Bash(find:*)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(ls:*)",
+      "Bash(git:*)",
+      "Bash(where java:*)",
+      "Read(//c/Program Files/**)",
+      "Read(//c/Program Files/Android/Android Studio/jbr/**)",
+      "Read(//c/Program Files/Android/Android Studio/**)"
     ]
   }
 }
