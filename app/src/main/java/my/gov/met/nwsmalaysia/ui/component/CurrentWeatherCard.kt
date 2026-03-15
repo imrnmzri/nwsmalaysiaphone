@@ -5,8 +5,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,7 +43,12 @@ fun CurrentWeatherCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                WmoIcon(code = conditions.weatherCode, modifier = Modifier.size(64.dp))
+                val currentHour = remember { java.time.LocalTime.now().hour }
+                WmoIcon(
+                    code = conditions.weatherCode,
+                    isNight = WmoCodeMapper.isNight(currentHour),
+                    modifier = Modifier.size(64.dp)
+                )
                 Spacer(Modifier.width(16.dp))
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
@@ -110,24 +117,50 @@ private fun WeatherDetail(
 }
 
 @Composable
-fun WmoIcon(code: Int, modifier: Modifier = Modifier) {
-    val icon = when (code) {
-        0, 1    -> Icons.Default.WbSunny          // Clear / mainly clear
-        2       -> Icons.Default.WbCloudy          // Partly cloudy
-        3       -> Icons.Default.Cloud             // Overcast
-        45, 48  -> Icons.Default.Dehaze            // Fog / haze
+fun WmoIcon(
+    code: Int,
+    isNight: Boolean = false,
+    modifier: Modifier = Modifier
+) {
+    val (icon, tint) = when (code) {
+        0, 1 -> if (isNight)
+            Icons.Default.Bedtime       to Color(0xFF7986CB)
+        else
+            Icons.Default.WbSunny       to Color(0xFFF9A825)
+
+        2 -> if (isNight)
+            Icons.Default.NightsStay    to Color(0xFF7986CB)
+        else
+            Icons.Default.WbCloudy      to Color(0xFFFFB300)
+
+        3 ->
+            Icons.Default.Cloud         to Color(0xFF90A4AE)
+
+        45, 48 ->
+            Icons.Default.Foggy         to Color(0xFFB0BEC5)
+
         51, 53, 55,
-        61, 63  -> Icons.Default.WaterDrop         // Drizzle / moderate rain
-        65      -> Icons.Default.Umbrella          // Heavy rain
-        71, 73, 75, 77, 85, 86 -> Icons.Default.AcUnit  // Snow
-        80, 81, 82,
-        95, 96, 99 -> Icons.Default.Thunderstorm  // Showers / thunderstorm
-        else    -> Icons.Default.WbSunny
+        61, 63, 65 ->
+            Icons.Default.WaterDrop     to Color(0xFF1E88E5)
+
+        71, 73, 75, 77, 85, 86 ->
+            Icons.Default.AcUnit        to Color(0xFF90CAF9)
+
+        80, 81, 82 ->
+            Icons.Default.Water         to Color(0xFF0288D1)
+
+        95, 96, 99 ->
+            Icons.Default.Thunderstorm  to Color(0xFFFDD835)
+
+        else -> if (isNight)
+            Icons.Default.Bedtime       to Color(0xFF7986CB)
+        else
+            Icons.Default.WbSunny       to Color(0xFFF9A825)
     }
     Icon(
         imageVector = icon,
-        contentDescription = "Weather icon",
-        tint = MaterialTheme.colorScheme.primary,
+        contentDescription = null,
+        tint = tint,
         modifier = modifier
     )
 }

@@ -51,8 +51,13 @@ private fun HourlyItem(forecast: HourlyForecast) {
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         val timeLabel = forecast.time.substringAfter("T").take(5)
+        val hour = forecast.time.substringAfter("T").take(2).toIntOrNull() ?: 12
         Text(text = timeLabel, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
-        WmoIcon(code = forecast.weatherCode, modifier = Modifier.size(24.dp))
+        WmoIcon(
+            code = forecast.weatherCode,
+            isNight = WmoCodeMapper.isNight(hour),
+            modifier = Modifier.size(24.dp)
+        )
         Text(text = "${forecast.temperature.roundToInt()}°", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
         if (forecast.precipProbability > 0) {
             Text(text = "${forecast.precipProbability}%", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontSize = 10.sp)
