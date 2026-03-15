@@ -8,7 +8,9 @@
       "Bash(./gradlew assembleRelease 2>&1)",
       "Bash(where gradle:*)",
       "Bash(export:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(find:*)",
+      "Bash(cd:*)"
     ]
   }
 }

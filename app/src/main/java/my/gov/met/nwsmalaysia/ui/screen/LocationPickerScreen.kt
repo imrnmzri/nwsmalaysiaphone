@@ -123,23 +123,6 @@ fun LocationPickerScreen(
 private fun LocationRow(location: Location, onClick: () -> Unit) {
     ListItem(
         headlineContent = { Text(location.name) },
-        supportingContent = {
-            Text(
-                text = location.type,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-            )
-        },
-        trailingContent = {
-            if (location.latitude != null) {
-                Icon(
-                    imageVector = Icons.Default.LocationOn,
-                    contentDescription = "Has coordinates",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(16.dp)
-                )
-            }
-        },
         modifier = Modifier.clickable { onClick() }
     )
     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))

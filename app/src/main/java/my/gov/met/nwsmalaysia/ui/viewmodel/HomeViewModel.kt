@@ -41,18 +41,13 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            // Must complete BEFORE collect fires its first emission,
-            // otherwise getById() returns null for a freshly-selected location.
             locationRepository.ensureLocationsLoaded()
-
-            // Now safe to react to location changes (first emission comes immediately)
             userPreferences.selectedLocationId.collect { locationId ->
                 loadAll(locationId)
             }
         }
     }
 
-    /** Called by pull-to-refresh */
     fun refresh() {
         viewModelScope.launch {
             loadAll(userPreferences.selectedLocationId.first())
@@ -62,36 +57,44 @@ class HomeViewModel @Inject constructor(
     private suspend fun loadAll(locationId: String?) {
         _uiState.update { it.copy(isLoading = true, error = null) }
         try {
-            // 1. Resolve Location object from DB
             val location = if (locationId != null) locationRepository.getById(locationId) else null
-            Log.d(TAG, "loadAll: locationId='$locationId' location=${location?.name} state='${location?.state}'")
+            Log.d(TAG, "loadAll: locationId='$locationId' location=${location?.name}")
 
-            // 2. Filter warnings by location using API state/district fields
             val warnings = warningRepository.getWarnings(
                 locationState = location?.state,
                 locationName = location?.name
             )
-            Log.d(TAG, "loadAll: got ${warnings.size} warnings for state='${location?.state}' name='${location?.name}'")
 
-            // 3. Fetch Signifikan advisory text via ML Kit OCR
             _uiState.update { it.copy(signifikanLoading = true) }
             val signifikanText = runCatching {
                 signifikanRepository.getSignifikanText()
             }.getOrNull()
 
-            // 4. Fetch current conditions + hourly/daily from Open-Meteo (only if we have coords)
+            // Fetch gov API forecast for 7-day display (works for all locations with locationId)
+            val apiForecasts = if (locationId != null) {
+                runCatching { weatherRepository.getForecast(locationId) }.getOrNull() ?: emptyList()
+            } else emptyList()
+
+            // Fetch Open-Meteo current conditions + hourly (only when coords available)
             val lat = location?.latitude
             val lon = location?.longitude
             val condData = if (lat != null && lon != null) {
                 runCatching { weatherRepository.getCurrentConditions(lat, lon) }.getOrNull()
             } else null
 
+            // Build daily forecast: prefer gov API data, fall back to Open-Meteo
+            val dailyForecasts = if (apiForecasts.isNotEmpty()) {
+                weatherRepository.buildDailyForecastsFromApi(apiForecasts)
+            } else {
+                condData?.daily ?: emptyList()
+            }
+
             _uiState.update { current ->
                 current.copy(
                     location = location,
                     currentConditions = condData?.current,
                     hourlyForecasts = condData?.hourly ?: emptyList(),
-                    dailyForecasts = condData?.daily ?: emptyList(),
+                    dailyForecasts = dailyForecasts,
                     warnings = warnings,
                     signifikanText = signifikanText,
                     signifikanLoading = false,

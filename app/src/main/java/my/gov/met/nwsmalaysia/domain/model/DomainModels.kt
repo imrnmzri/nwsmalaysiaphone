@@ -15,10 +15,11 @@ data class Warning(
 data class Forecast(
     val date: String,
     val locationId: String,
-    val morningCode: Int,
-    val afternoonCode: Int,
-    val nightCode: Int,
-    val summaryCode: Int,
+    val morningForecast: String,
+    val afternoonForecast: String,
+    val nightForecast: String,
+    val summaryForecast: String,
+    val summaryWhen: String?,
     val minTemp: Int,
     val maxTemp: Int
 )

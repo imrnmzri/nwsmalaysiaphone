@@ -49,14 +49,14 @@ interface LocationDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(entities: List<LocationEntity>)
 
-    // Only locations with known coordinates (can show Open-Meteo weather)
-    @Query("SELECT * FROM locations WHERE latitude IS NOT NULL AND longitude IS NOT NULL ORDER BY state, name")
+    // All locations, regardless of coordinates
+    @Query("SELECT * FROM locations ORDER BY state, name")
     suspend fun getAll(): List<LocationEntity>
 
     @Query("SELECT * FROM locations WHERE locationId = :id")
     suspend fun getById(id: String): LocationEntity?
 
-    @Query("SELECT * FROM locations WHERE latitude IS NOT NULL AND longitude IS NOT NULL AND name LIKE '%' || :query || '%' ORDER BY state, name LIMIT 100")
+    @Query("SELECT * FROM locations WHERE name LIKE '%' || :query || '%' ORDER BY state, name LIMIT 200")
     suspend fun search(query: String): List<LocationEntity>
 
     @Query("SELECT * FROM locations WHERE latitude IS NOT NULL AND longitude IS NOT NULL")

@@ -22,8 +22,7 @@ class LocationRepository @Inject constructor(
 ) {
 
     suspend fun ensureLocationsLoaded() {
-        // Re-insert if empty OR if no location has coordinates (stale data from earlier build)
-        if (locationDao.count() == 0 || locationDao.getAllWithCoords().isEmpty()) {
+        if (locationDao.count() == 0) {
             val entities = CsvParser.parseLocations(context)
             locationDao.insertAll(entities)
         }

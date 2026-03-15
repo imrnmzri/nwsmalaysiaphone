@@ -112,15 +112,17 @@ private fun WeatherDetail(
 @Composable
 fun WmoIcon(code: Int, modifier: Modifier = Modifier) {
     val icon = when (code) {
-        0, 1 -> Icons.Default.WbSunny
-        2 -> Icons.Default.WbCloudy
-        3 -> Icons.Default.Cloud
-        45, 48 -> Icons.Default.Cloud
-        51, 53, 55 -> Icons.Default.Grain
-        61, 63, 65 -> Icons.Default.Water
-        80, 81, 82 -> Icons.Default.Thunderstorm
-        95, 96, 99 -> Icons.Default.Bolt
-        else -> Icons.Default.WbSunny
+        0, 1    -> Icons.Default.WbSunny          // Clear / mainly clear
+        2       -> Icons.Default.WbCloudy          // Partly cloudy
+        3       -> Icons.Default.Cloud             // Overcast
+        45, 48  -> Icons.Default.Dehaze            // Fog / haze
+        51, 53, 55,
+        61, 63  -> Icons.Default.WaterDrop         // Drizzle / moderate rain
+        65      -> Icons.Default.Umbrella          // Heavy rain
+        71, 73, 75, 77, 85, 86 -> Icons.Default.AcUnit  // Snow
+        80, 81, 82,
+        95, 96, 99 -> Icons.Default.Thunderstorm  // Showers / thunderstorm
+        else    -> Icons.Default.WbSunny
     }
     Icon(
         imageVector = icon,

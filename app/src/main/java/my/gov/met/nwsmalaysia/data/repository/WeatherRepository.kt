@@ -24,6 +24,10 @@ class WeatherRepository @Inject constructor(
     private val gson: Gson
 ) {
 
+    /**
+     * Fetches 7-day forecast from the gov API for a specific location.
+     * Applies client-side filtering by locationId in case the API returns all locations.
+     */
     suspend fun getForecast(locationId: String): List<Forecast> {
         val cached = forecastDao.getForLocation(locationId)
         val now = System.currentTimeMillis()
@@ -32,14 +36,21 @@ class WeatherRepository @Inject constructor(
         }
         return try {
             val response = weatherApiService.getForecast(locationId)
-            val json = gson.toJson(response)
+            // Filter to selected location, then deduplicate by date (API returns multiple records per date)
+            val filtered = response
+                .filter { it.location.locationId == locationId }
+                .distinctBy { it.date }
+            val json = gson.toJson(filtered)
             forecastDao.insert(CachedForecastEntity(locationId, json, now))
-            response.map { it.toDomain() }
+            filtered.map { it.toDomain() }
         } catch (e: Exception) {
             cached?.let { parseForecastJson(it.json) } ?: emptyList()
         }
     }
 
+    /**
+     * Fetches current conditions + hourly from Open-Meteo using coordinates.
+     */
     suspend fun getCurrentConditions(lat: Double, lon: Double): CurrentConditionsData? {
         return try {
             val response = openMeteoApiService.getCurrent(
@@ -52,6 +63,38 @@ class WeatherRepository @Inject constructor(
             response.toCurrentConditionsData()
         } catch (e: Exception) {
             null
+        }
+    }
+
+    /**
+     * Converts gov API Forecast list into DailyForecast list using the same model
+     * as Open-Meteo daily, so the UI stays identical. The WMO code is derived from
+     * the summary_forecast text; temperatures come from the gov API.
+     */
+    fun buildDailyForecastsFromApi(apiForecasts: List<Forecast>): List<DailyForecast> {
+        return apiForecasts
+            .sortedBy { it.date }
+            .map { f ->
+                DailyForecast(
+                    date = f.date,
+                    weatherCode = summaryTextToWmoCode(f.summaryForecast),
+                    maxTemp = f.maxTemp.toDouble(),
+                    minTemp = f.minTemp.toDouble()
+                )
+            }
+    }
+
+    private fun summaryTextToWmoCode(text: String): Int {
+        val t = text.lowercase()
+        return when {
+            "ribut petir" in t -> 95
+            "hujan lebat" in t -> 65
+            "hujan" in t       -> 63
+            "berjerebu" in t   -> 45
+            "berawan" in t     -> 3
+            "berpanas" in t    -> 1
+            "tiada hujan" in t -> 0
+            else               -> 2
         }
     }
 
@@ -68,18 +111,17 @@ class WeatherRepository @Inject constructor(
     private fun ForecastResponse.toDomain() = Forecast(
         date = date,
         locationId = location.locationId,
-        morningCode = morningForecast,
-        afternoonCode = afternoonForecast,
-        nightCode = nightForecast,
-        summaryCode = summaryForecast,
+        morningForecast = morningForecast,
+        afternoonForecast = afternoonForecast,
+        nightForecast = nightForecast,
+        summaryForecast = summaryForecast,
+        summaryWhen = summaryWhen,
         minTemp = minTemp,
         maxTemp = maxTemp
     )
 
     private fun OpenMeteoResponse.toCurrentConditionsData(): CurrentConditionsData? {
         val c = current ?: return null
-        val hourlyData = buildHourlyList()
-        val dailyData = buildDailyList()
         return CurrentConditionsData(
             current = CurrentConditions(
                 temperature = c.temperature ?: 0.0,
@@ -90,8 +132,8 @@ class WeatherRepository @Inject constructor(
                 windDirection = c.windDirection ?: 0,
                 precipitation = c.precipitation ?: 0.0
             ),
-            hourly = hourlyData,
-            daily = dailyData
+            hourly = buildHourlyList(),
+            daily = buildMeteoDaily()
         )
     }
 
@@ -116,7 +158,7 @@ class WeatherRepository @Inject constructor(
         }
     }
 
-    private fun OpenMeteoResponse.buildDailyList(): List<DailyForecast> {
+    private fun OpenMeteoResponse.buildMeteoDaily(): List<DailyForecast> {
         val d = daily ?: return emptyList()
         val dates = d.time ?: return emptyList()
         return dates.indices.mapNotNull { i ->

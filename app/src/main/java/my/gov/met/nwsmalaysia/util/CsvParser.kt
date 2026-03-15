@@ -64,18 +64,43 @@ object CsvParser {
                 val parts = line.split(",")
                 if (parts.size < 4) return@forEachIndexed
                 val type = parts[0].trim()
+                // Skip State and District entries — only show Towns, Recreational, etc.
+                if (type == "State" || type == "District") return@forEachIndexed
                 val id = parts[1].trim()
                 val name = parts[2].trim()
                 val state = parts[3].trim()
-                val coords = KNOWN_COORDS[id]
+
+                // Try to read lat/lon from CSV first (columns 4 & 5)
+                var lat: Double? = null
+                var lon: Double? = null
+                if (parts.size >= 6) {
+                    try {
+                        val latStr = parts[4].trim()
+                        val lonStr = parts[5].trim()
+                        if (latStr.isNotEmpty() && lonStr.isNotEmpty()) {
+                            lat = latStr.toDoubleOrNull()
+                            lon = lonStr.toDoubleOrNull()
+                        }
+                    } catch (e: Exception) {
+                        // ignore parsing errors
+                    }
+                }
+
+                // Fall back to KNOWN_COORDS if CSV coordinates are missing
+                if (lat == null || lon == null) {
+                    val coords = KNOWN_COORDS[id]
+                    lat = coords?.first
+                    lon = coords?.second
+                }
+
                 result.add(
                     LocationEntity(
                         locationId = id,
                         name = name,
                         type = type,
                         state = state,
-                        latitude = coords?.first,
-                        longitude = coords?.second
+                        latitude = lat,
+                        longitude = lon
                     )
                 )
             }
