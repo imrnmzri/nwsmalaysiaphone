@@ -11,6 +11,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import my.gov.met.nwsmalaysia.MainActivity
 import my.gov.met.nwsmalaysia.R
 import my.gov.met.nwsmalaysia.domain.model.Warning
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -46,10 +48,11 @@ class NotificationHelper @Inject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        val endDate = formatValidTo(warning.validTo)
         val notification = NotificationCompat.Builder(context, CHANNEL_WARNINGS)
             .setSmallIcon(android.R.drawable.ic_dialog_alert)
             .setContentTitle(warning.titleEn)
-            .setContentText(warning.headingEn.take(120))
+            .setContentText("Alert in effect until $endDate")
             .setStyle(NotificationCompat.BigTextStyle().bigText(warning.headingEn))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
@@ -58,5 +61,21 @@ class NotificationHelper @Inject constructor(
 
         val notifId = Math.abs(warning.fingerprint.hashCode())
         NotificationManagerCompat.from(context).notify(notifId, notification)
+    }
+
+    fun cancel(fingerprint: String) {
+        val notifId = Math.abs(fingerprint.hashCode())
+        NotificationManagerCompat.from(context).cancel(notifId)
+    }
+
+    private fun formatValidTo(validTo: String): String {
+        return try {
+            val input = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
+            val output = SimpleDateFormat("d MMM yyyy, h:mm a", Locale.US)
+            val date = input.parse(validTo)
+            if (date != null) output.format(date) else validTo
+        } catch (e: Exception) {
+            validTo
+        }
     }
 }

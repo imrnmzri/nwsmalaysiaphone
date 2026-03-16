@@ -28,6 +28,9 @@ interface NotifiedWarningDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entity: NotifiedWarningEntity)
 
+    @Query("SELECT fingerprint FROM notified_warnings WHERE validTo < :now")
+    suspend fun getExpiredFingerprints(now: Long): List<String>
+
     @Query("DELETE FROM notified_warnings WHERE validTo < :now")
     suspend fun deleteExpired(now: Long)
 }

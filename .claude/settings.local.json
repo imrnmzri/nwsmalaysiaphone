@@ -16,7 +16,11 @@
       "Bash(where java:*)",
       "Read(//c/Program Files/**)",
       "Read(//c/Program Files/Android/Android Studio/jbr/**)",
-      "Read(//c/Program Files/Android/Android Studio/**)"
+      "Read(//c/Program Files/Android/Android Studio/**)",
+      "WebFetch(domain:github.com)",
+      "Bash(gh api:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(reg query:*)"
     ]
   }
 }

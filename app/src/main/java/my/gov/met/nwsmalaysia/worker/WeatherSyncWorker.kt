@@ -42,7 +42,11 @@ class WeatherSyncWorker @AssistedInject constructor(
             )
             val dao = db.notifiedWarningDao()
 
-            dao.deleteExpired(System.currentTimeMillis())
+            val now = System.currentTimeMillis()
+            dao.getExpiredFingerprints(now).forEach { fingerprint ->
+                notificationHelper.cancel(fingerprint)
+            }
+            dao.deleteExpired(now)
 
             if (notifWarnings) {
                 warnings.forEach { warning -> dispatchIfNeeded(warning, dao) }

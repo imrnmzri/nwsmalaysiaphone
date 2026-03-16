@@ -101,7 +101,7 @@ fun CurrentWeatherCard(
 
 @Composable
 private fun WeatherDetail(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     label: String,
     value: String
 ) {
@@ -124,34 +124,65 @@ fun WmoIcon(
     modifier: Modifier = Modifier
 ) {
     val iconAndTint: Pair<ImageVector, Color> = when (code) {
+        // Clear / Mostly Clear
         0, 1 -> if (isNight)
             Icons.Default.Bedtime       to Color(0xFF7986CB)
         else
             Icons.Default.WbSunny       to Color(0xFFF9A825)
 
+        // Partly Cloudy
         2 -> if (isNight)
-            Icons.Default.NightsStay    to Color(0xFF7986CB)
+            Icons.Default.NightsStay    to Color(0xFF9FA8DA)
         else
             Icons.Default.WbCloudy      to Color(0xFFFFB300)
 
+        // Overcast
         3 ->
-            Icons.Default.Cloud         to Color(0xFF90A4AE)
+            Icons.Default.Cloud         to Color(0xFFABABAB)
 
-        45, 48 ->
-            Icons.Default.BlurOn        to Color(0xFFB0BEC5)
+        // Fog / Rime Fog
+        45 ->
+            Icons.Default.BlurOn        to Color(0xFFA4ACBA)
+        48 ->
+            Icons.Default.BlurOn        to Color(0xFF8891A4)
 
-        51, 53, 55,
-        61, 63, 65 ->
-            Icons.Default.WaterDrop     to Color(0xFF1E88E5)
+        // Drizzle (cyan/teal)
+        51 -> Icons.Default.Grain       to Color(0xFF3DECEB)
+        53 -> Icons.Default.Grain       to Color(0xFF0CCECE)
+        55 -> Icons.Default.Grain       to Color(0xFF0AB1B1)
 
-        71, 73, 75, 77, 85, 86 ->
-            Icons.Default.AcUnit        to Color(0xFF90CAF9)
+        // Freezing Drizzle (purple)
+        56 -> Icons.Default.AcUnit      to Color(0xFFD3BFE8)
+        57 -> Icons.Default.AcUnit      to Color(0xFFA780D4)
 
-        80, 81, 82 ->
-            Icons.Default.Water         to Color(0xFF0288D1)
+        // Rain (blue-purple)
+        61 -> Icons.Default.WaterDrop   to Color(0xFFBFC3FA)
+        63 -> Icons.Default.WaterDrop   to Color(0xFF9CA7FA)
+        65 -> Icons.Default.WaterDrop   to Color(0xFF748BF8)
 
-        95, 96, 99 ->
-            Icons.Default.Thunderstorm  to Color(0xFFFDD835)
+        // Freezing Rain (indigo)
+        66 -> Icons.Default.AcUnit      to Color(0xFFCAC1EE)
+        67 -> Icons.Default.AcUnit      to Color(0xFF9486E1)
+
+        // Snow (light blue)
+        71 -> Icons.Default.AcUnit      to Color(0xFFB0D0F0)
+        73 -> Icons.Default.AcUnit      to Color(0xFF90CAF9)
+        75 -> Icons.Default.AcUnit      to Color(0xFF64B5F6)
+        77 -> Icons.Default.AcUnit      to Color(0xFFCE93D8)
+
+        // Rain Showers (light blue)
+        80 -> Icons.Default.WaterDrop   to Color(0xFF9BCCFD)
+        81 -> Icons.Default.WaterDrop   to Color(0xFF51B4FF)
+        82 -> Icons.Default.WaterDrop   to Color(0xFF029AE8)
+
+        // Snow Showers
+        85 -> Icons.Default.AcUnit      to Color(0xFFB0D0F0)
+        86 -> Icons.Default.AcUnit      to Color(0xFF90CAF9)
+
+        // Thunderstorm
+        95 -> Icons.Default.Thunderstorm to Color(0xFF525F7A)
+        // Thunderstorm with Hail
+        96, 99 -> Icons.Default.Thunderstorm to Color(0xFF3D475C)
 
         else -> if (isNight)
             Icons.Default.Bedtime       to Color(0xFF7986CB)
