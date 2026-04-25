@@ -66,4 +66,13 @@ class LocationViewModel @Inject constructor(
             }
         }
     }
+
+    fun autoDetectLocation() {
+        viewModelScope.launch {
+            val location = locationRepository.detectGpsAndFindNearest()
+            if (location != null) {
+                userPreferences.saveLocation(location.locationId, location.name, location.state)
+            }
+        }
+    }
 }

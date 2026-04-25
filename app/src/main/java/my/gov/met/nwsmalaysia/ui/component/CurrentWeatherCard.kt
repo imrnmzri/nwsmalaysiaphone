@@ -8,11 +8,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import my.gov.met.nwsmalaysia.R
 import my.gov.met.nwsmalaysia.domain.model.CurrentConditions
 import my.gov.met.nwsmalaysia.util.WmoCodeMapper
 import kotlin.math.roundToInt
@@ -117,83 +119,18 @@ private fun WeatherDetail(
     }
 }
 
+private val WeatherIconFont = FontFamily(Font(R.font.weathericons))
+
 @Composable
 fun WmoIcon(
     code: Int,
     isNight: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-    val iconAndTint: Pair<ImageVector, Color> = when (code) {
-        // Clear / Mostly Clear
-        0, 1 -> if (isNight)
-            Icons.Default.Bedtime       to Color(0xFF7986CB)
-        else
-            Icons.Default.WbSunny       to Color(0xFFF9A825)
-
-        // Partly Cloudy
-        2 -> if (isNight)
-            Icons.Default.NightsStay    to Color(0xFF9FA8DA)
-        else
-            Icons.Default.WbCloudy      to Color(0xFFFFB300)
-
-        // Overcast
-        3 ->
-            Icons.Default.Cloud         to Color(0xFFABABAB)
-
-        // Fog / Rime Fog
-        45 ->
-            Icons.Default.BlurOn        to Color(0xFFA4ACBA)
-        48 ->
-            Icons.Default.BlurOn        to Color(0xFF8891A4)
-
-        // Drizzle (cyan/teal)
-        51 -> Icons.Default.Grain       to Color(0xFF3DECEB)
-        53 -> Icons.Default.Grain       to Color(0xFF0CCECE)
-        55 -> Icons.Default.Grain       to Color(0xFF0AB1B1)
-
-        // Freezing Drizzle (purple)
-        56 -> Icons.Default.AcUnit      to Color(0xFFD3BFE8)
-        57 -> Icons.Default.AcUnit      to Color(0xFFA780D4)
-
-        // Rain (blue-purple)
-        61 -> Icons.Default.WaterDrop   to Color(0xFFBFC3FA)
-        63 -> Icons.Default.WaterDrop   to Color(0xFF9CA7FA)
-        65 -> Icons.Default.WaterDrop   to Color(0xFF748BF8)
-
-        // Freezing Rain (indigo)
-        66 -> Icons.Default.AcUnit      to Color(0xFFCAC1EE)
-        67 -> Icons.Default.AcUnit      to Color(0xFF9486E1)
-
-        // Snow (light blue)
-        71 -> Icons.Default.AcUnit      to Color(0xFFB0D0F0)
-        73 -> Icons.Default.AcUnit      to Color(0xFF90CAF9)
-        75 -> Icons.Default.AcUnit      to Color(0xFF64B5F6)
-        77 -> Icons.Default.AcUnit      to Color(0xFFCE93D8)
-
-        // Rain Showers (light blue)
-        80 -> Icons.Default.WaterDrop   to Color(0xFF9BCCFD)
-        81 -> Icons.Default.WaterDrop   to Color(0xFF51B4FF)
-        82 -> Icons.Default.WaterDrop   to Color(0xFF029AE8)
-
-        // Snow Showers
-        85 -> Icons.Default.AcUnit      to Color(0xFFB0D0F0)
-        86 -> Icons.Default.AcUnit      to Color(0xFF90CAF9)
-
-        // Thunderstorm
-        95 -> Icons.Default.Thunderstorm to Color(0xFF525F7A)
-        // Thunderstorm with Hail
-        96, 99 -> Icons.Default.Thunderstorm to Color(0xFF3D475C)
-
-        else -> if (isNight)
-            Icons.Default.Bedtime       to Color(0xFF7986CB)
-        else
-            Icons.Default.WbSunny       to Color(0xFFF9A825)
-    }
-    val (icon, tint) = iconAndTint
-    Icon(
-        imageVector = icon,
-        contentDescription = null,
-        tint = tint,
+    val iconChar = WmoCodeMapper.iconUnicode(code, isNight)
+    Text(
+        text = iconChar.toString(),
+        fontFamily = WeatherIconFont,
         modifier = modifier
     )
 }

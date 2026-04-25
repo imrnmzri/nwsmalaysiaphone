@@ -40,6 +40,10 @@ fun HomeScreen(
 
     var searchActive by remember { mutableStateOf(false) }
 
+    LaunchedEffect(Unit) {
+        locationViewModel.autoDetectLocation()
+    }
+
     // When GPS detection finishes successfully, close the search bar and reload weather
     var wasDetecting by remember { mutableStateOf(false) }
     LaunchedEffect(locationState.isDetecting) {
